@@ -3,8 +3,8 @@
 </script>
 
 <template>
-    <div class="shelf_column">
-        <p>Shelf Column {{ column }}</p>
+    <div class="shelfColumn">
+        <p>Shelf Column {{ columnID }}</p>
         <slot></slot>
     </div>
 </template>
@@ -19,7 +19,7 @@
 </script>
 
 <style scoped>
-.shelf_column {
+.shelfColumn {
     display: flex;
     flex-direction: column;
     background-color: rgb(53, 76, 20);
