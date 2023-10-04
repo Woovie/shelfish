@@ -3,6 +3,7 @@ import Search from './components/Search.vue'
 import ShelfUnit from './components/ShelfUnit.vue'
 import ShelfSection from './components/Shelf.vue'
 import ShelfColumn from './components/ShelfColumn.vue'
+import ProductComponent from './components/Product.vue'
 </script>
 
 <template>
@@ -11,7 +12,10 @@ import ShelfColumn from './components/ShelfColumn.vue'
     <div class="shelfContainer">
       <ShelfUnit
         @click="selectShelfUnit"
-        :class="{ selectingShelfUnit: shelfUnitSelect, shelfSelected: selectedShelfUnit == shelfUnit.id }"
+        :class="{
+          selectingShelfUnit: shelfUnitSelect,
+          shelfSelected: selectedShelfUnit == shelfUnit.id
+        }"
         v-for="shelfUnit in shelfData"
         :shelfUnitID="shelfUnit.id"
         :data-shelf-unit="shelfUnit.id"
@@ -20,7 +24,11 @@ import ShelfColumn from './components/ShelfColumn.vue'
         <ShelfSection
           @click="selectShelfSection"
           v-for="shelfSection in shelfUnit.shelves"
-          :class="{ selectingShelfSection: shelfSectionSelect && selectedShelfUnit == shelfUnit.id, shelfSectionSelected: selectedShelfSection == shelfSection.id && selectedShelfUnit == shelfUnit.id }"
+          :class="{
+            selectingShelfSection: shelfSectionSelect && selectedShelfUnit == shelfUnit.id,
+            shelfSectionSelected:
+              selectedShelfSection == shelfSection.id && selectedShelfUnit == shelfUnit.id
+          }"
           :shelfSectionID="shelfSection.id"
           :data-shelf-section="shelfSection.id"
           :data-shelf-parent="shelfUnit.id"
@@ -49,10 +57,17 @@ import ShelfColumn from './components/ShelfColumn.vue'
         <label for="productType">What is being added? </label>
         <select name="productType" v-model="selectedItemType">
           <option disabled value="">Please choose</option>
-          <option v-for="itemType in itemTypes" :key="itemType.value" :value="itemType.value">{{ itemType.name }}</option>
+          <option
+          v-for="itemType in itemTypes"
+          :key="itemType.value"
+          :value="itemType.value">
+            {{ itemType.name }}
+          </option>
         </select>
       </div>
       <p v-if="selectedItemType">Item type: {{ selectedItemType }}</p>
+      <ProductComponent v-if="selectedItemType && selectedItemType == 'product'">
+      </ProductComponent>
     </div>
   </div>
 </template>
@@ -87,7 +102,9 @@ export default {
     selectShelfUnit(event) {
       if (this.addingItemMode && this.shelfUnitSelect) {
         const target = event.currentTarget // Not needed outside of the if
-        document.querySelector("#addItemStatusBar").innerText = `Chose unit ${target.getAttribute('data-shelf-unit')}`
+        document.querySelector('#addItemStatusBar').innerText = `Chose unit ${target.getAttribute(
+          'data-shelf-unit'
+        )}`
         this.shelfUnitSelect = false
         this.selectedShelfUnit = event.currentTarget.getAttribute('data-shelf-unit')
         this.shelfSectionSelect = true
@@ -95,11 +112,20 @@ export default {
     },
     selectShelfSection(event) {
       const target = event.currentTarget // Used in the if logic
-      if (this.addingItemMode && this.shelfSectionSelect && this.selectedShelfUnit == target.getAttribute('data-shelf-parent')) {
-        document.querySelector("#addItemStatusBar").innerText = `Chose section ${target.getAttribute('data-shelf-section')}`
+      if (
+        this.addingItemMode &&
+        this.shelfSectionSelect &&
+        this.selectedShelfUnit == target.getAttribute('data-shelf-parent')
+      ) {
+        document.querySelector(
+          '#addItemStatusBar'
+        ).innerText = `Chose section ${target.getAttribute('data-shelf-section')}`
         this.shelfSectionSelect = false
         this.selectedShelfSection = target.getAttribute('data-shelf-section')
-        if (this.shelfData[this.selectedShelfUnit - 1].shelves[this.selectedShelfSection - 1].columns.length === 0) {
+        if (
+          this.shelfData[this.selectedShelfUnit - 1].shelves[this.selectedShelfSection - 1].columns
+            .length === 0
+        ) {
           this.createNewColumn()
         } else {
           this.sectionColumnSelect = true
@@ -107,17 +133,26 @@ export default {
       }
     },
     selectSectionColumn(event) {
-      if (this.addingItemMode && this.sectionColumnSelect && this.selectedShelfSection == event.currentTarget.getAttribute('data-section-parent')) {
-        const columns = this.shelfData[this.selectedShelfUnit - 1].shelves[this.selectedShelfSection - 1].columns
+      if (
+        this.addingItemMode &&
+        this.sectionColumnSelect &&
+        this.selectedShelfSection == event.currentTarget.getAttribute('data-section-parent')
+      ) {
+        const columns =
+          this.shelfData[this.selectedShelfUnit - 1].shelves[this.selectedShelfSection - 1].columns
       }
     },
-    createNewColumn() {// TODO add logic to check if column contains any containers, proceed to choose to add new item or choose an existing container
-      this.shelfData[this.selectedShelfUnit - 1].shelves[this.selectedShelfSection - 1].columns.push({
+    createNewColumn() {
+      // TODO add logic to check if column contains any containers, proceed to choose to add new item or choose an existing container
+      this.shelfData[this.selectedShelfUnit - 1].shelves[
+        this.selectedShelfSection - 1
+      ].columns.push({
         id: 1,
         items: []
       })
       this.selectedSectionColumn = 1
-      document.querySelector("#addItemStatusBar").innerText += ', no existing columns, created new column'
+      document.querySelector('#addItemStatusBar').innerText +=
+        ', no existing columns, created new column'
       // TODO go on to the next logic needed for post-selectSectionColumn
     }
   },
