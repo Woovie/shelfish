@@ -1,85 +1,105 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import Search from './components/Search.vue';
+import ShelfUnit from './components/ShelfUnit.vue';
+import Shelf from './components/Shelf.vue';
+import ShelfColumn from './components/ShelfColumn.vue';
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
+    <div id="contentContainer">
+        <Search />
+        <div class="shelfContainer">
+            <ShelfUnit :class="{'selectingShelfUnit': shelfUnitSelect}" @click="selectShelfUnit" v-for="shelfUnit in shelfData" :shelfUnitID="shelfUnit.id" :data-shelf-unit="shelfUnit.id">
+                <Shelf :class="{'selectingShelfSection': shelfSectionSelect}" @click="selectShelfSection" v-for="shelfSection in shelfUnit.shelves" :shelfSectionID="shelfSection.id" :data-shelf-section="shelfSection.id">
+                    <ShelfColumn v-for="shelfColumn in shelfSection.columns" :columnID="shelfColumn.id" :data-shelf-column="shelfColumn.id"></ShelfColumn>
+                </Shelf>
+            </ShelfUnit>
+        </div>
+        <button @click="addItemMode">Add Item</button>
+        <button @click="cancelAddItem" v-if="addingItemMode">Cancel</button>
     </div>
-  </header>
-
-  <RouterView />
 </template>
 
+<script>
+    export default {
+        mounted() {
+            const shelfCount = 3
+            const sections = 6
+            for (let shelfUnit = 0; shelfUnit < shelfCount; shelfUnit++) {
+                const payload = {
+                    id: shelfUnit + 1,
+                    shelves: []
+                }
+                for (let shelfSection = 0; shelfSection < sections; shelfSection++) {
+                    payload.shelves.push({
+                        id: shelfSection + 1,
+                        columns: []
+                    })
+                }
+                this.shelfData.push(payload)
+            }
+        },
+        methods: {
+            addItemMode() {
+                this.addingItemMode = true
+                this.shelfUnitSelect = true
+            },
+            cancelAddItem() {
+                this.addingItemMode = false
+            },
+            selectShelfUnit(event) {
+                if (this.addingItemMode && this.shelfUnitSelect) {
+                    this.shelfUnitSelect = false
+                    this.selectedShelfUnit = event.target.getAttribute('data-shelf-unit')
+                    this.shelfSectionSelect = true
+                }
+            },
+            selectShelfSection(event) {
+                if (this.addingItemMode && this.shelfSectionSelect) {
+                    this.shelfSectionSelect = false
+                    this.selectedShelfSection = event.target.getAttribute('data-shelf-unit')
+                }
+            }
+        },
+        data() {
+            return {
+                addingItemMode: false,
+                selectedShelfUnit: null,
+                selectedShelfSection: null,
+                shelfUnitSelect: false,
+                shelfSectionSelect: false,
+                shelfData: []
+            }
+        }
+    }
+</script>
+
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
+    #contentContainer {
+        margin-left: 10%;
+        margin-right: 10%;
+    }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+    .shelfContainer {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
+    .selectingShelfUnit {
+        background-color: red;
+    }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
+    .selectingShelfUnit:hover {
+        background-color: purple;
+    }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
+    .selectingShelfSection {
+        background-color: teal;
+    }
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
+    .selectingShelfSection:hover {
+        background-color: gold;
+    }
 </style>
