@@ -4,8 +4,7 @@
 
 <template>
     <div class="shelfColumn">
-        <p>Shelf Column {{ columnID }}</p>
-        <slot></slot>
+        {{ columnID }}
     </div>
 </template>
 
@@ -23,6 +22,9 @@
     display: flex;
     flex-direction: column;
     background-color: rgb(53, 76, 20);
-    padding: 10px;
+    min-height: 50px;
+    padding-left: 5px;
+    padding-right: 5px;
+    flex-grow: 1;
 }
 </style>

@@ -14,8 +14,8 @@ import ProductItem from './components/ProductItem.vue'
       <ShelfUnit
         @click="selectShelfUnit"
         :class="{
-          selectingShelfUnit: shelfUnitSelect,
-          shelfSelected: selectedShelfUnit == shelfUnit.id
+          selectingShelfUnit: state.shelfUnitSelect,
+          shelfSelected: state.selectedShelfUnit == shelfUnit.id
         }"
         v-for="shelfUnit in shelfData"
         :shelfUnitID="shelfUnit.id"
@@ -24,12 +24,14 @@ import ProductItem from './components/ProductItem.vue'
       >
         <ShelfSection
           @click="selectShelfSection"
-          v-for="shelfSection in shelfUnit.shelves"
           :class="{
-            selectingShelfSection: shelfSectionSelect && selectedShelfUnit == shelfUnit.id,
+            selectingShelfSection:
+              state.shelfSectionSelect && state.selectedShelfUnit == shelfUnit.id,
             shelfSectionSelected:
-              selectedShelfSection == shelfSection.id && selectedShelfUnit == shelfUnit.id
+              state.selectedShelfSection == shelfSection.id &&
+              state.selectedShelfUnit == shelfUnit.id
           }"
+          v-for="shelfSection in shelfUnit.shelves"
           :shelfSectionID="shelfSection.id"
           :data-shelf-section="shelfSection.id"
           :data-shelf-parent="shelfUnit.id"
@@ -37,6 +39,10 @@ import ProductItem from './components/ProductItem.vue'
         >
           <ShelfColumn
             @click="selectSectionColumn"
+            :class="{
+              selectingShelfSectionColumnAdjust: state.shelfSectionSelect && state.selectedShelfUnit == shelfUnit.id,
+              selectingShelfColumn: state.sectionColumnSelect && state.selectedShelfSection == shelfSection.id
+            }"
             v-for="shelfColumn in shelfSection.columns"
             :columnID="shelfColumn.id"
             :data-shelf-column="shelfColumn.id"
@@ -44,32 +50,33 @@ import ProductItem from './components/ProductItem.vue'
             :data-shelf-parent="shelfUnit.id"
             :key="shelfColumn.id"
           >
-            <ProductItem v-for="productItem in shelfColumn.items" :key="productItem.name">{{ productItem.name }}</ProductItem>
+            <ProductItem v-for="productItem in shelfColumn.items" :key="productItem.name">{{
+              productItem.name
+            }}</ProductItem>
           </ShelfColumn>
         </ShelfSection>
       </ShelfUnit>
     </div>
-    <button @click="addItemMode" v-if="!addingItemMode">Add Item</button>
-    <button @click="cancelAddItem" v-if="addingItemMode">Cancel</button>
+    <button @click="addItemMode" v-if="!state.addingItemMode">Add Item</button>
     <div>
-      <p id="addItemStatusBar">Click Add Item to get started!</p>
-      <p v-if="selectedShelfUnit">Shelf Unit: {{ selectedShelfUnit }}</p>
-      <p v-if="selectedShelfSection">Shelf Section: {{ selectedShelfSection }}</p>
-      <p v-if="selectedSectionColumn">Column: {{ selectedSectionColumn }}</p>
-      <div v-if="selectedSectionColumn && !selectedItemType">
+      <p>{{ state.message }}</p>
+      <p v-if="state.selectedShelfUnit">Shelf Unit: {{ state.selectedShelfUnit }}</p>
+      <p v-if="state.selectedShelfSection">Shelf Section: {{ state.selectedShelfSection }}</p>
+      <p v-if="state.selectedSectionColumn">Column: {{ state.selectedSectionColumn }}</p>
+      <div v-if="state.selectedSectionColumn && !state.selectedItemType">
         <label for="productType">What is being added? </label>
-        <select name="productType" v-model="selectedItemType">
+        <select name="productType" v-model="state.selectedItemType">
           <option disabled value="">Please choose</option>
-          <option
-          v-for="itemType in itemTypes"
-          :key="itemType.value"
-          :value="itemType.value">
+          <option v-for="itemType in itemTypes" :key="itemType.value" :value="itemType.value">
             {{ itemType.name }}
           </option>
         </select>
       </div>
-      <p v-if="selectedItemType">Item type: {{ selectedItemType }}</p>
-      <ProductEntry v-if="selectedItemType && selectedItemType == 'product'" @finishedEntry="addProduct">
+      <p v-if="state.selectedItemType">Item type: {{ state.selectedItemType }}</p>
+      <ProductEntry
+        v-if="state.selectedItemType && state.selectedItemType == 'product'"
+        @finishedEntry="addProduct"
+      >
       </ProductEntry>
     </div>
   </div>
@@ -96,82 +103,89 @@ export default {
   },
   methods: {
     addItemMode() {
-      this.addingItemMode = true
-      this.shelfUnitSelect = true
-    },
-    cancelAddItem() {
-      this.addingItemMode = false
+      this.state.addingItemMode = true
+      this.state.shelfUnitSelect = true
+      this.state.message = "Choose a shelf unit"
     },
     selectShelfUnit(event) {
-      if (this.addingItemMode && this.shelfUnitSelect) {
+      if (this.state.addingItemMode && this.state.shelfUnitSelect) {
         const target = event.currentTarget // Not needed outside of the if
-        document.querySelector('#addItemStatusBar').innerText = `Chose unit ${target.getAttribute(
+        this.state.message = `Chose unit ${target.getAttribute(
           'data-shelf-unit'
-        )}`
-        this.shelfUnitSelect = false
-        this.selectedShelfUnit = event.currentTarget.getAttribute('data-shelf-unit')
-        this.shelfSectionSelect = true
+        )}, choose a shelf section`
+        this.state.shelfUnitSelect = false
+        this.state.selectedShelfUnit = event.currentTarget.getAttribute('data-shelf-unit')
+        this.state.shelfSectionSelect = true
       }
     },
     selectShelfSection(event) {
       const target = event.currentTarget // Used in the if logic
       if (
-        this.addingItemMode &&
-        this.shelfSectionSelect &&
-        this.selectedShelfUnit == target.getAttribute('data-shelf-parent')
+        this.state.addingItemMode &&
+        this.state.shelfSectionSelect &&
+        this.state.selectedShelfUnit == target.getAttribute('data-shelf-parent')
       ) {
-        document.querySelector(
-          '#addItemStatusBar'
-        ).innerText = `Chose section ${target.getAttribute('data-shelf-section')}`
-        this.shelfSectionSelect = false
-        this.selectedShelfSection = target.getAttribute('data-shelf-section')
+        this.state.message = `Chose section ${target.getAttribute('data-shelf-section')}`
+        this.state.shelfSectionSelect = false
+        this.state.selectedShelfSection = target.getAttribute('data-shelf-section')
         if (
-          this.shelfData[this.selectedShelfUnit - 1].shelves[this.selectedShelfSection - 1].columns
-            .length === 0
+          this.shelfData[this.state.selectedShelfUnit - 1].shelves[
+            this.state.selectedShelfSection - 1
+          ].columns.length === 0
         ) {
           this.createNewColumn()
         } else {
-          this.sectionColumnSelect = true
+          this.state.sectionColumnSelect = true
+          this.state.message += ", choose a column"
         }
       }
     },
     selectSectionColumn(event) {
       if (
-        this.addingItemMode &&
-        this.sectionColumnSelect &&
-        this.selectedShelfSection == event.currentTarget.getAttribute('data-section-parent')
+        this.state.addingItemMode &&
+        this.state.sectionColumnSelect &&
+        this.state.selectedShelfSection == event.currentTarget.getAttribute('data-section-parent')
       ) {
-          this.shelfData[this.selectedShelfUnit - 1].shelves[this.selectedShelfSection - 1].columns
+        this.state.sectionColumnSelect = false
+        this.state.selectedSectionColumn = event.currentTarget.getAttribute('data-shelf-column')
+        this.state.message = `Chose column ${event.currentTarget.getAttribute('data-shelf-column')}, fill in the product details.`
       }
     },
     createNewColumn() {
       // TODO add logic to check if column contains any containers, proceed to choose to add new item or choose an existing container
-      this.shelfData[this.selectedShelfUnit - 1].shelves[
-        this.selectedShelfSection - 1
+      this.shelfData[this.state.selectedShelfUnit - 1].shelves[
+        this.state.selectedShelfSection - 1
       ].columns.push({
         id: 1,
         items: []
       })
-      this.selectedSectionColumn = 1
-      document.querySelector('#addItemStatusBar').innerText +=
-        ', no existing columns, created new column'
+      this.state.selectedSectionColumn = 1
+      this.state.message += ', no existing columns, created new column'
       // TODO go on to the next logic needed for post-selectSectionColumn
     },
-    addProduct(product) {
-      this.shelfData[this.selectedShelfUnit - 1].shelves[this.selectedShelfSection - 1].columns[this.selectedSectionColumn - 1].items.push(product)
+    addProduct(product) {// TODO add indicator that this occured
+      this.shelfData[this.state.selectedShelfUnit - 1].shelves[
+        this.state.selectedShelfSection - 1
+      ].columns[this.state.selectedSectionColumn - 1].items.push(product)
+      this.state = this.initialState()
+    },
+    initialState() {
+      return {
+        addingItemMode: false,
+        shelfUnitSelect: false,
+        shelfSectionSelect: false,
+        sectionColumnSelect: false,
+        selectedShelfUnit: null,
+        selectedShelfSection: null,
+        selectedSectionColumn: null,
+        selectedItemType: null,
+        message: 'Click add to get started!'
+      }
     }
   },
   data() {
     return {
       shelfData: [],
-      addingItemMode: false,
-      shelfUnitSelect: false,
-      shelfSectionSelect: false,
-      sectionColumnSelect: false,
-      selectedShelfUnit: null,
-      selectedShelfSection: null,
-      selectedSectionColumn: null,
-      selectedItemType: null,
       itemTypes: [
         {
           name: 'Product',
@@ -181,7 +195,8 @@ export default {
           name: 'Container',
           value: 'container'
         }
-      ]
+      ],
+      state: this.initialState()
     }
   }
 }
@@ -214,6 +229,18 @@ export default {
 
 .selectingShelfSection:hover {
   background-color: gold;
+}
+
+.selectingShelfSectionColumnAdjust {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.selectingShelfColumn {
+  background-color: yellowgreen;
+}
+
+.selectingShelfColumn:hover {
+  background-color: darkkhaki;
 }
 
 .shelfSelected {

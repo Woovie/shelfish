@@ -26,7 +26,6 @@
 .shelfSectionInner {
     display: flex;
     flex-direction: row;
-    padding: 10px;
     min-height: 50px;
 }
 
