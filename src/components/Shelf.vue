@@ -23,6 +23,7 @@ export default {
   display: flex;
   flex-direction: row;
   min-height: 50px;
+  align-items: stretch;
 }
 
 .shelfSectionShelf {

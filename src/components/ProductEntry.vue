@@ -80,7 +80,7 @@
 <script>
 export default {
   name: 'ProductEntry',
-  emits: ['finishedEntry', 'cancelEntry'],
+  emits: ['finishedEntry'],
   data() {
     return {
       payload: this.initialState(),
@@ -201,13 +201,15 @@ export default {
           }
         ],
         misc: []
-      }
+      },
     }
   },
+  props: [
+    'cancelEntry'
+  ],
   methods: {
     flagChange(event) {
-      this.payload.flagValues[event.target.name] = event.target.value
-      console.log(this.payload.flagValues)
+      this.payload.flagValues[event.target.name] = this.getSelected(event.target)
     },
     initialState() {
       return {
@@ -223,6 +225,23 @@ export default {
     completedEntry() {
       this.$emit('finishedEntry', this.payload)
       this.payload = this.initialState()
+    },
+    getSelected(selector) {
+      const selecteds = []
+      for (let idx in selector.options) {
+        if (selector.options[idx].selected) {
+          selecteds.push(selector.options[idx].value)
+        }
+      }
+      return selecteds
+    },
+  },
+  watch: {
+    cancelEntry: function() {
+      if (this.cancelEntry) {
+        this.payload = this.initialState()
+        this.$emit('entryCancelled')
+      }
     }
   }
 }

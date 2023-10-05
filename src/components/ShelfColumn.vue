@@ -2,7 +2,7 @@
 
 <template>
   <div class="shelfColumn">
-    {{ slot }}
+    {{ columnID }}
   </div>
 </template>
 
