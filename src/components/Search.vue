@@ -1,17 +1,11 @@
-<script setup>
+<script setup></script>
 
-</script>
-
-<template>
-    Search: <input type="text" />
-</template>
+<template>Search: <input type="text" /></template>
 
 <script>
-    export default {
-        name: "Search"
-    }
+export default {
+  name: 'Search'
+}
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

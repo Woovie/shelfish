@@ -11,7 +11,12 @@
           {{ option.name }}
         </option>
       </select>
-      <input v-if="payload.sellable" v-model="payload.price" placeholder="0.00" aria-label="Price" />
+      <input
+        v-if="payload.sellable"
+        v-model="payload.price"
+        placeholder="0.00"
+        aria-label="Price"
+      />
     </div>
     <div>
       <label for="giveaway">Giveaway item? </label>
@@ -75,10 +80,7 @@
 <script>
 export default {
   name: 'ProductEntry',
-  emits: [
-    'finishedEntry',
-    'cancelEntry'
-  ],
+  emits: ['finishedEntry', 'cancelEntry'],
   data() {
     return {
       payload: this.initialState(),
@@ -92,13 +94,7 @@ export default {
           value: false
         }
       ],
-      qualities: [
-        'A',
-        'B',
-        'C',
-        'D',
-        'F-'
-      ],
+      qualities: ['A', 'B', 'C', 'D', 'F-'],
       typeFlags: {
         keycaps: [
           {
@@ -107,11 +103,11 @@ export default {
             options: [
               {
                 name: 'Yes',
-                value: true,
+                value: true
               },
               {
                 name: 'No',
-                value: false,
+                value: false
               }
             ]
           },
@@ -164,26 +160,16 @@ export default {
           {
             name: 'PCB type ',
             type: 'multiselect',
-            options: [
-              'Solder',
-              'Hot swap',
-              'Both',
-              'None'
-            ]
+            options: ['Solder', 'Hot swap', 'Both', 'None']
           },
           {
-            name: 'PCB quantity' ,
+            name: 'PCB quantity',
             type: 'input'
           },
           {
             name: 'Plate material ',
             type: 'multiselect',
-            options: [
-              'Aluminum',
-              'Steel',
-              'POM',
-              'Carbon fiber'
-            ]
+            options: ['Aluminum', 'Steel', 'POM', 'Carbon fiber']
           },
           {
             name: 'Plate quantity ',
@@ -231,7 +217,7 @@ export default {
         quality: null,
         price: 0.0,
         type: null,
-        flagValues: {},
+        flagValues: {}
       }
     },
     completedEntry() {
@@ -242,6 +228,4 @@ export default {
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

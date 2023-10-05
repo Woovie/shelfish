@@ -40,8 +40,10 @@ import ProductItem from './components/ProductItem.vue'
           <ShelfColumn
             @click="selectSectionColumn"
             :class="{
-              selectingShelfSectionColumnAdjust: state.shelfSectionSelect && state.selectedShelfUnit == shelfUnit.id,
-              selectingShelfColumn: state.sectionColumnSelect && state.selectedShelfSection == shelfSection.id
+              selectingShelfSectionColumnAdjust:
+                state.shelfSectionSelect && state.selectedShelfUnit == shelfUnit.id,
+              selectingShelfColumn:
+                state.sectionColumnSelect && state.selectedShelfSection == shelfSection.id
             }"
             v-for="shelfColumn in shelfSection.columns"
             :columnID="shelfColumn.id"
@@ -105,7 +107,7 @@ export default {
     addItemMode() {
       this.state.addingItemMode = true
       this.state.shelfUnitSelect = true
-      this.state.message = "Choose a shelf unit"
+      this.state.message = 'Choose a shelf unit'
     },
     selectShelfUnit(event) {
       if (this.state.addingItemMode && this.state.shelfUnitSelect) {
@@ -136,7 +138,7 @@ export default {
           this.createNewColumn()
         } else {
           this.state.sectionColumnSelect = true
-          this.state.message += ", choose a column"
+          this.state.message += ', choose a column'
         }
       }
     },
@@ -148,7 +150,9 @@ export default {
       ) {
         this.state.sectionColumnSelect = false
         this.state.selectedSectionColumn = event.currentTarget.getAttribute('data-shelf-column')
-        this.state.message = `Chose column ${event.currentTarget.getAttribute('data-shelf-column')}, fill in the product details.`
+        this.state.message = `Chose column ${event.currentTarget.getAttribute(
+          'data-shelf-column'
+        )}, fill in the product details.`
       }
     },
     createNewColumn() {
@@ -163,7 +167,8 @@ export default {
       this.state.message += ', no existing columns, created new column'
       // TODO go on to the next logic needed for post-selectSectionColumn
     },
-    addProduct(product) {// TODO add indicator that this occured
+    addProduct(product) {
+      // TODO add indicator that this occured
       this.shelfData[this.state.selectedShelfUnit - 1].shelves[
         this.state.selectedShelfSection - 1
       ].columns[this.state.selectedSectionColumn - 1].items.push(product)

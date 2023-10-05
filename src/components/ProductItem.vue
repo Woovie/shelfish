@@ -1,20 +1,16 @@
-<script setup>
-
-</script>
+<script setup></script>
 
 <template>
   <slot>{{ name }}</slot>
 </template>
 
 <script>
-  export default {
-    name: 'ProductItem',
-    props: {
-      name: String,
-    }
+export default {
+  name: 'ProductItem',
+  props: {
+    name: String
   }
+}
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
