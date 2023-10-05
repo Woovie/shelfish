@@ -3,7 +3,8 @@ import Search from './components/Search.vue'
 import ShelfUnit from './components/ShelfUnit.vue'
 import ShelfSection from './components/Shelf.vue'
 import ShelfColumn from './components/ShelfColumn.vue'
-import ProductComponent from './components/Product.vue'
+import ProductEntry from './components/ProductEntry.vue'
+import ProductItem from './components/ProductItem.vue'
 </script>
 
 <template>
@@ -42,11 +43,13 @@ import ProductComponent from './components/Product.vue'
             :data-section-parent="shelfSection.id"
             :data-shelf-parent="shelfUnit.id"
             :key="shelfColumn.id"
-          ></ShelfColumn>
+          >
+            <ProductItem v-for="productItem in shelfColumn.items" :key="productItem.name">{{ productItem.name }}</ProductItem>
+          </ShelfColumn>
         </ShelfSection>
       </ShelfUnit>
     </div>
-    <button @click="addItemMode">Add Item</button>
+    <button @click="addItemMode" v-if="!addingItemMode">Add Item</button>
     <button @click="cancelAddItem" v-if="addingItemMode">Cancel</button>
     <div>
       <p id="addItemStatusBar">Click Add Item to get started!</p>
@@ -66,8 +69,8 @@ import ProductComponent from './components/Product.vue'
         </select>
       </div>
       <p v-if="selectedItemType">Item type: {{ selectedItemType }}</p>
-      <ProductComponent v-if="selectedItemType && selectedItemType == 'product'">
-      </ProductComponent>
+      <ProductEntry v-if="selectedItemType && selectedItemType == 'product'" @finishedEntry="addProduct">
+      </ProductEntry>
     </div>
   </div>
 </template>
@@ -138,7 +141,6 @@ export default {
         this.sectionColumnSelect &&
         this.selectedShelfSection == event.currentTarget.getAttribute('data-section-parent')
       ) {
-        const columns =
           this.shelfData[this.selectedShelfUnit - 1].shelves[this.selectedShelfSection - 1].columns
       }
     },
@@ -154,6 +156,9 @@ export default {
       document.querySelector('#addItemStatusBar').innerText +=
         ', no existing columns, created new column'
       // TODO go on to the next logic needed for post-selectSectionColumn
+    },
+    addProduct(product) {
+      this.shelfData[this.selectedShelfUnit - 1].shelves[this.selectedShelfSection - 1].columns[this.selectedSectionColumn - 1].items.push(product)
     }
   },
   data() {
