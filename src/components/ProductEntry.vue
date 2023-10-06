@@ -1,5 +1,3 @@
-<script setup></script>
-
 <template>
   <div class="product">
     <p>Product name: <input v-model="payload.name" placeholder="Cool beans" aria-label="Name" /></p>

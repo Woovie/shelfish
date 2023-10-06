@@ -1,6 +1,10 @@
 <template>
   <div id="contentContainer">
-    <Search />
+    <SearchBox
+      :updateData="updatingData"
+      :shelfData="JSON.stringify(shelfData)"
+      @updatedData="updatedData"
+    ></SearchBox>
     <div class="shelfContainer">
       <ShelfUnit
         @click="selectShelfUnit"
@@ -34,7 +38,9 @@
               selectingShelfSectionColumnAdjust:
                 shelfStore.shelfSectionSelect && shelfStore.selectedShelfUnit == shelfUnit.id,
               selectingShelfColumn:
-                shelfStore.sectionColumnSelect && shelfStore.selectedShelfSection == shelfSection.id
+                shelfStore.sectionColumnSelect && shelfStore.selectedShelfSection == shelfSection.id,
+              exploreContents:
+                !shelfStore.addingItemMode
             }"
             v-for="shelfColumn in shelfSection.columns"
             :columnID="shelfColumn.id"
@@ -80,7 +86,7 @@
 </template>
 
 <script>
-import Search from './components/Search.vue'
+import SearchBox from './components/Search.vue'
 import ShelfUnit from './components/ShelfUnit.vue'
 import ShelfSection from './components/Shelf.vue'
 import ShelfColumn from './components/ShelfColumn.vue'
@@ -90,7 +96,7 @@ import { useShelfStore } from './stores/shelvesStore'
 
 export default {
   components: {
-    Search,
+    SearchBox,
     ShelfUnit,
     ShelfSection,
     ShelfColumn,
@@ -103,20 +109,26 @@ export default {
     return { shelfStore }
   },
   mounted() {
-    const shelfCount = 3
-    const sections = 6
-    for (let shelfUnit = 0; shelfUnit < shelfCount; shelfUnit++) {
-      const payload = {
-        id: shelfUnit + 1,
-        shelves: []
+    const shelfDataStored = localStorage.getItem('shelfData')
+
+    if (shelfDataStored) {
+      this.shelfData = JSON.parse(shelfDataStored)
+    } else {
+      const shelfCount = 3
+      const sections = 6
+      for (let shelfUnit = 0; shelfUnit < shelfCount; shelfUnit++) {
+        const payload = {
+          id: shelfUnit + 1,
+          shelves: []
+        }
+        for (let shelfSection = 0; shelfSection < sections; shelfSection++) {
+          payload.shelves.push({
+            id: shelfSection + 1,
+            columns: []
+          })
+        }
+        this.shelfData.push(payload)
       }
-      for (let shelfSection = 0; shelfSection < sections; shelfSection++) {
-        payload.shelves.push({
-          id: shelfSection + 1,
-          columns: []
-        })
-      }
-      this.shelfData.push(payload)
     }
   },
   methods: {
@@ -213,6 +225,12 @@ export default {
     cancelledProduct() {
       this.cancelProduct = false
     },
+    updateData() {
+      this.updatingData = true
+    },
+    updatedData() {
+      this.updatingData = false
+    }
   },
   data() {
     return {
@@ -228,6 +246,16 @@ export default {
         }
       ],
       cancelProduct: false,
+      updatingData: false,
+    }
+  },
+  watch: {
+    shelfData: {
+      handler() {
+        localStorage.setItem('shelfData', JSON.stringify(this.shelfData))
+        this.updateData()
+      },
+      deep: true
     }
   }
 }
@@ -296,5 +324,9 @@ export default {
 .newColumnButton:hover {
   cursor: pointer;
   background-color: firebrick;
+}
+
+.exploreContents:hover {
+  background-color: aquamarine;
 }
 </style>
